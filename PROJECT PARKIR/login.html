@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PARK-iR | Login</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,400;0,500;0,600;0,700;1,800;1,900&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --navy:#37409c;
+    --navy-deep:#2f3789;
+    --periwinkle:#6a78e0;
+    --periwinkle-dark:#5b69d6;
+    --card-bg:#eeeeee;
+    --card-bg-2:#e6e6e6;
+    --ink:#26272b;
+    --muted:#6b6b6f;
+    --input-bg:#e2e2e2;
+    --input-border:#b9b9bb;
+  }
+
+  *{box-sizing:border-box;}
+
+  html,body{
+    margin:0;
+    padding:0;
+    height:100%;
+    font-family:'Poppins', 'Segoe UI', sans-serif;
+    color:var(--ink);
+  }
+
+  body{
+    height:100vh;
+    width:100vw;
+    overflow:hidden;
+  }
+
+  .stage{
+    position:relative;
+    width:100vw;
+    height:100vh;
+    overflow:hidden;
+    display:flex;
+  }
+  .bg-photo{
+    position:relative;
+    flex:1 1 80%;
+    background-image:
+      linear-gradient(0deg, rgba(0,0,0,.35), rgba(0,0,0,.15) 45%, rgba(0,0,0,.55)),
+      url('bgPARK-iR.png');
+    background-position:center;
+  }
+  .side-panel{
+    flex:0 0 20%;
+    min-width:180px;
+    background:var(--navy);
+    position:relative;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    overflow:hidden;
+  }
+
+  .side-text{
+    font-family:'Montserrat', sans-serif;
+    font-weight:900;
+    font-style:italic;
+    font-size:64px;
+    letter-spacing:2px;
+    color:var(--periwinkle);
+    writing-mode:vertical-rl;
+    transform:rotate(180deg);
+    white-space:nowrap;
+    text-shadow:0 2px 0 rgba(0,0,0,.15);
+    user-select:none;
+  }
+  .card{
+    position:absolute;
+    top:50%;
+    left:66.5%;
+    transform:translate(-50%,-50%);
+    width:31%;
+    min-width:320px;
+    max-width:390px;
+    background:linear-gradient(180deg, var(--card-bg) 0%, var(--card-bg-2) 100%);
+    border-radius:26px;
+    padding:28px 34px 30px;
+    box-shadow:0 20px 45px rgba(0,0,0,.45);
+  }
+
+  .logo-wrap{
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    margin-bottom:6px;
+  }
+
+  .logo-badge{
+    width:64px;
+    height:64px;
+    border-radius:50%;
+    background:#111214;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    box-shadow:inset 0 0 0 2px #2c2d30;
+    overflow:hidden;
+  }
+
+  .logo-badge img{
+    width:100%;
+    height:100%;
+    object-fit:cover;
+    border-radius:50%;
+  }
+
+  .logo-fallback{
+    display:none;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+  }
+
+  .logo-badge .P{
+    font-family:'Montserrat', sans-serif;
+    font-weight:900;
+    font-style:italic;
+    font-size:26px;
+    line-height:1;
+    color:#2fb6b0;
+    margin-top:2px;
+  }
+
+  .logo-badge .tag{
+    font-family:'Montserrat', sans-serif;
+    font-weight:800;
+    font-style:italic;
+    font-size:6.5px;
+    letter-spacing:.5px;
+    color:#fff;
+    background:#151517;
+    padding:1px 4px;
+    border-radius:2px;
+    margin-top:1px;
+  }
+
+  .brand{
+    font-family:'Montserrat', sans-serif;
+    font-weight:900;
+    font-style:italic;
+    font-size:34px;
+    letter-spacing:.5px;
+    color:var(--periwinkle-dark);
+    margin:4px 0 0;
+    text-align:center;
+  }
+
+  .brand-sub{
+    font-size:10.5px;
+    font-weight:600;
+    letter-spacing:1.2px;
+    color:var(--ink);
+    text-align:center;
+    margin-top:2px;
+  }
+
+  .divider{
+    border:none;
+    border-top:2px dashed #9a9a9c;
+    margin:14px 0 14px;
+  }
+
+  .form-title{
+    text-align:center;
+    font-size:19px;
+    font-weight:700;
+    letter-spacing:1px;
+    margin:0 0 4px;
+  }
+
+  .form-sub{
+    text-align:center;
+    font-size:11px;
+    color:var(--muted);
+    line-height:1.4;
+    margin:0 0 18px;
+  }
+
+  .field{
+    margin-bottom:14px;
+  }
+
+  .field label{
+    display:block;
+    font-size:10.5px;
+    font-weight:700;
+    letter-spacing:.5px;
+    margin-bottom:5px;
+    color:var(--ink);
+  }
+
+  .input-wrap{
+    position:relative;
+    display:flex;
+    align-items:center;
+    background:var(--input-bg);
+    border:1px solid var(--input-border);
+    border-radius:6px;
+    padding:0 10px;
+    height:38px;
+  }
+
+  .input-wrap svg{
+    flex:0 0 auto;
+    width:15px;
+    height:15px;
+    color:#8a8a8c;
+    margin-right:8px;
+  }
+
+  .input-wrap input{
+    flex:1;
+    border:none;
+    background:transparent;
+    outline:none;
+    font-family:'Poppins', sans-serif;
+    font-size:11.5px;
+    letter-spacing:.3px;
+    color:var(--ink);
+  }
+
+  .input-wrap input::placeholder{
+    color:#9a9a9c;
+    font-size:11.5px;
+    letter-spacing:.3px;
+  }
+
+  .remember{
+    display:flex;
+    align-items:center;
+    gap:8px;
+    margin:6px 0 18px;
+  }
+
+  .remember .check{
+    appearance:none;
+    -webkit-appearance:none;
+    width:17px;
+    height:17px;
+    border-radius:50%;
+    background:#d9d9db;
+    border:1px solid #b9b9bb;
+    flex:0 0 auto;
+    margin:0;
+    cursor:pointer;
+    position:relative;
+    display:inline-block;
+  }
+
+  .remember .check:checked{
+    background:var(--periwinkle-dark);
+    border-color:var(--periwinkle-dark);
+  }
+
+  .remember .check:checked::after{
+    content:"";
+    position:absolute;
+    top:50%;
+    left:50%;
+    width:8px;
+    height:5px;
+    border-left:2px solid #fff;
+    border-bottom:2px solid #fff;
+    transform:translate(-50%,-65%) rotate(-45deg);
+  }
+
+  .remember label{
+    cursor:pointer;
+    display:inline-flex;
+    align-items:center;
+    gap:8px;
+    margin:0;
+  }
+
+  .remember span{
+    font-size:10.5px;
+    font-weight:700;
+    letter-spacing:.4px;
+    color:var(--ink);
+  }
+
+  .btn-login{
+    width:100%;
+    height:44px;
+    border:none;
+    border-radius:8px;
+    background:var(--periwinkle-dark);
+    color:#fff;
+    font-family:'Poppins', sans-serif;
+    font-size:15px;
+    font-weight:600;
+    letter-spacing:.4px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:9px;
+    cursor:pointer;
+    transition:background .15s ease, transform .05s ease;
+  }
+
+  .btn-login svg{
+    width:16px;
+    height:16px;
+  }
+
+  .btn-login:hover{
+    background:#4d5bcf;
+  }
+
+  .btn-login:active{
+    transform:translateY(1px);
+  }
+  @media (max-width: 860px){
+    .stage{ max-height:none; height:100vh; }
+    .side-panel{ display:none; }
+    .card{ left:50%; width:88%; min-width:0; }
+    .side-text{ font-size:48px; }
+  }
+</style>
+</head>
+<body>
+
+  <div class="stage">
+    <div class="bg-photo"></div>
+    <div class="side-panel">
+      <span class="side-text">PARK-iR</span>
+    </div>
+
+    <div class="card">
+      <div class="logo-wrap">
+        <div class="logo-badge">
+          <img src="LOGO PARK-iR.png" alt="Logo PARK-iR"
+               onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+          <div class="logo-fallback">
+            <span class="P">P</span>
+            <span class="tag">PARK-IR</span>
+          </div>
+        </div>
+        <div class="brand">PARK-iR</div>
+        <div class="brand-sub">SISTEM PARKIR BERBASIS DIGITAL</div>
+      </div>
+
+      <hr class="divider">
+
+      <div class="form-title">LOGIN</div>
+      <p class="form-sub">SILAHKAN MASUKKAN ID DAN PASSWORD<br>ANDA UNTUK MELANJUTKAN !</p>
+
+      <div class="field">
+        <label>ID</label>
+        <div class="input-wrap">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+          <input type="text" placeholder="MASUKKAN ID">
+        </div>
+      </div>
+
+      <div class="field">
+        <label>PASSWORD</label>
+        <div class="input-wrap">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+          <input type="password" placeholder="MASUKAN PASSWORD">
+        </div>
+      </div>
+
+      <div class="remember">
+        <label>
+          <input type="checkbox" class="check" checked>
+          <span>INGATKAN SAYA</span>
+        </label>
+      </div>
+
+      <button class="btn-login" type="button">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"></path><polyline points="10 17 15 12 10 7"></polyline><line x1="15" y1="12" x2="3" y2="12"></line></svg>
+        Login
+      </button>
+    </div>
+  </div>
+
+</body>
+</html>
