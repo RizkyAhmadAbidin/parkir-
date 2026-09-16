@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PARK-iR | Demo Tabel User</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,700;0,900;1,900&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  *{box-sizing:border-box;}
+  body{margin:0;font-family:'Poppins','Segoe UI',sans-serif;color:#26272b;background:#fafafa;}
+
+  /* ---- header & sidebar (cuma buat tampilan demo, di proyek asli udah ada) ---- */
+  .app-shell{min-height:100vh;display:flex;flex-direction:column;}
+  .app-header{background:#6a78e0;display:flex;align-items:center;justify-content:space-between;padding:14px 28px;border-bottom:3px solid #1c1c1c;}
+  .app-header .hamburger-btn{background:none;border:none;color:#fff;font-size:26px;cursor:pointer;width:80px;text-align:left;}
+  .app-header .brand{text-align:center;flex:1;}
+  .app-header .brand .logo-text{font-family:'Montserrat',sans-serif;font-style:italic;font-weight:900;font-size:34px;color:#fff;letter-spacing:1px;margin:0;line-height:1;}
+  .app-header .brand .logo-sub{font-size:12px;font-weight:700;letter-spacing:2px;color:#fff;margin-top:4px;}
+  .app-header .badge{width:64px;height:64px;border-radius:50%;background:#111214;display:flex;flex-direction:column;align-items:center;justify-content:center;box-shadow:inset 0 0 0 2px #2c2d30;}
+  .app-header .badge .P{font-family:'Montserrat',sans-serif;font-weight:900;font-style:italic;font-size:24px;color:#2fb6b0;}
+  .app-header .badge .tag{font-family:'Montserrat',sans-serif;font-weight:800;font-style:italic;font-size:6px;letter-spacing:.5px;color:#fff;background:#151517;padding:1px 4px;border-radius:2px;margin-top:1px;}
+  .app-body{display:flex;flex:1;}
+  .sidebar{width:210px;background:#6a78e0;padding:24px 16px;display:flex;flex-direction:column;gap:12px;}
+  .sidebar .nav-btn{display:block;background:#f0f0f0;color:#222;text-decoration:none;padding:14px 12px;border-radius:8px;font-weight:700;font-size:13px;letter-spacing:.5px;text-align:center;}
+  .sidebar .nav-btn.active{background:#fff;box-shadow:0 0 0 2px #37409c inset;}
+  .sidebar .spacer{flex:1;}
+
+  /* ---- konten utama (INI yang persis sama dengan admin.php) ---- */
+  .content{flex:1;padding:26px 34px;position:relative;}
+  .content-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;}
+  h1{font-size:20px;font-weight:700;letter-spacing:.5px;margin:0;color:#26272b;}
+  .btn-tambah{background:#37409c;color:#fff;border:none;border-radius:8px;padding:12px 20px;font-weight:700;font-size:12.5px;letter-spacing:.4px;cursor:pointer;display:inline-flex;align-items:center;gap:8px;}
+  .btn-tambah:hover{background:#2f3789;}
+
+  .alert{padding:10px 14px;border-radius:8px;font-size:12.5px;margin-bottom:16px;display:none;}
+  .alert-ok{background:#dff0d8;color:#3c763d;}
+  .alert-err{background:#fbeceb;color:#c0392b;}
+  .alert.show{display:block;}
+
+  .stats{display:flex;gap:18px;margin-bottom:22px;flex-wrap:wrap;}
+  .stat-card{background:#fff;border:1px solid #e2e2e2;border-radius:12px;padding:16px 22px;display:flex;align-items:center;gap:14px;min-width:200px;}
+  .stat-icon{width:46px;height:46px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex:0 0 auto;}
+  .stat-icon.total{background:#e8e8ea;color:#26272b;}
+  .stat-icon.aktif{background:#dff0d8;color:#3c763d;}
+  .stat-icon.nonaktif{background:#fbdede;color:#c0392b;}
+  .stat-icon svg{width:24px;height:24px;}
+  .stat-label{font-size:10px;letter-spacing:.6px;color:#888;text-transform:uppercase;}
+  .stat-value{font-size:24px;font-weight:700;line-height:1.2;}
+  .stat-unit{font-size:11px;color:#888;}
+
+  .toolbar{display:flex;gap:12px;margin-bottom:8px;position:relative;}
+  .search-box{flex:1;display:flex;align-items:center;gap:8px;background:#fff;border:1px solid #ccc;border-radius:8px;padding:0 14px;height:42px;}
+  .search-box svg{width:16px;height:16px;color:#999;flex:0 0 auto;}
+  .search-box input{flex:1;border:none;outline:none;font-size:13px;font-family:inherit;}
+  .btn-filter{display:flex;align-items:center;gap:6px;border:1.5px solid #6a78e0;color:#5b69d6;background:#fff;border-radius:8px;padding:0 18px;height:42px;font-weight:700;font-size:12.5px;cursor:pointer;}
+  .btn-filter svg{width:15px;height:15px;}
+
+  .filter-dropdown{position:absolute;top:48px;right:0;background:#fff;border:1px solid #ccc;border-radius:8px;width:170px;box-shadow:0 8px 20px rgba(0,0,0,.15);z-index:20;display:none;overflow:hidden;}
+  .filter-dropdown.show{display:block;}
+  .filter-dropdown a,.filter-dropdown button{display:block;width:100%;text-align:left;padding:10px 14px;font-size:12.5px;text-decoration:none;color:#333;border:none;background:none;cursor:pointer;font-family:inherit;}
+  .filter-dropdown a:hover,.filter-dropdown button:hover{background:#f0f1ff;}
+  .filter-dropdown a.active-opt{background:#e8eaff;color:#37409c;font-weight:700;}
+  .filter-dropdown .cancel-opt{color:#c0392b;font-weight:700;border-bottom:1px solid #eee;}
+  .filter-dropdown .divider{border-top:1px solid #eee;margin:2px 0;}
+
+  table{width:100%;border-collapse:collapse;background:#fff;border-radius:12px;overflow:hidden;box-shadow:0 1px 4px rgba(0,0,0,.06);margin-top:14px;}
+  th,td{padding:13px 14px;text-align:left;font-size:13px;border-bottom:1px solid #eee;}
+  th{background:#f5f5f7;font-size:10.5px;letter-spacing:.6px;color:#666;text-transform:uppercase;}
+  tr:last-child td{border-bottom:none;}
+
+  .pill{padding:5px 14px;border-radius:20px;font-size:11px;font-weight:700;display:inline-block;}
+  .pill-admin{background:#dcdfff;color:#37409c;}
+  .pill-petugas{background:#dcf5e0;color:#2f8a4a;}
+  .pill-aktif{background:#dcf5e0;color:#2f8a4a;}
+  .pill-nonaktif{background:#fbdede;color:#c0392b;}
+
+  .icon-btn{width:32px;height:32px;border-radius:8px;border:none;display:inline-flex;align-items:center;justify-content:center;cursor:pointer;text-decoration:none;margin-right:6px;}
+  .icon-btn svg{width:15px;height:15px;}
+  .icon-edit{background:#dcdfff;color:#37409c;}
+  .icon-hapus{background:#fbdede;color:#c0392b;}
+
+  /* ---- Modal Tambah User (INI yang persis sama dengan admin.php) ---- */
+  .modal-overlay{display:none;position:fixed;inset:0;background:rgba(20,22,50,.55);z-index:100;align-items:center;justify-content:center;}
+  .modal-overlay.show{display:flex;}
+  .modal-card{background:#eee;border-radius:22px;padding:26px 32px 30px;width:100%;max-width:340px;box-shadow:0 25px 60px rgba(0,0,0,.4);text-align:center;max-height:92vh;overflow-y:auto;position:relative;}
+  .modal-logo{width:64px;height:64px;border-radius:50%;object-fit:cover;margin-bottom:6px;background:#111214;}
+  .modal-card .brand{font-family:'Montserrat',sans-serif;font-weight:900;font-style:italic;font-size:26px;color:#5b69d6;margin:2px 0 0;}
+  .modal-card .brand-sub{font-size:10px;font-weight:600;letter-spacing:1px;margin-top:2px;}
+  .modal-card hr{border:none;border-top:2px dashed #9a9a9c;margin:12px 0;}
+  .modal-card h2{font-size:17px;margin:0 0 3px;color:#26272b;}
+  .modal-card .desc{font-size:10.5px;color:#666;margin:0 0 16px;}
+  .modal-card .field{text-align:left;margin-bottom:12px;}
+  .modal-card label{display:block;font-size:10px;font-weight:700;letter-spacing:.4px;margin-bottom:5px;}
+  .input-wrap{display:flex;align-items:center;gap:8px;background:#e2e2e2;border:1px solid #b9b9bb;border-radius:6px;padding:0 10px;height:38px;}
+  .input-wrap.err{border-color:#d9534f;background:#fbeceb;}
+  .input-wrap svg{width:15px;height:15px;color:#8a8a8c;flex:0 0 auto;}
+  .input-wrap input{flex:1;border:none;background:transparent;outline:none;font-size:12px;font-family:inherit;}
+  .field-error{color:#d9534f;font-size:9.5px;margin-top:4px;min-height:11px;}
+  .role-toggle{display:flex;gap:10px;}
+  .role-toggle input{position:absolute;opacity:0;pointer-events:none;}
+  .role-btn{flex:1;text-align:center;background:#5b69d6;color:#fff;border-radius:8px;padding:11px 0;font-size:12.5px;font-weight:700;letter-spacing:.5px;cursor:pointer;margin:0;transition:.15s;opacity:.55;}
+  .role-toggle input:checked + .role-btn{opacity:1;box-shadow:0 0 0 2px #26307a inset;}
+  .modal-remember{display:flex;align-items:center;gap:8px;margin:10px 0 16px;font-size:11px;font-weight:700;}
+  .btn-tambah-modal{width:100%;height:44px;border:none;border-radius:8px;background:#5b69d6;color:#fff;font-weight:700;font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;}
+  .btn-tambah-modal:hover{background:#4d5bcf;}
+  .modal-close{position:absolute;top:14px;right:18px;background:none;border:none;font-size:18px;cursor:pointer;color:#666;}
+
+  .demo-note{background:#fffbe6;border:1px solid #f0d975;color:#7a6b1e;font-size:11px;padding:10px 16px;text-align:center;}
+</style>
+</head>
+<body>
+
+<div class="demo-note">
+  🖥️ Ini demo tampilan doang (HTML+JS simulasi) — belum connect database beneran. Coba klik <b>"TAMBAH USER"</b>, <b>Filter</b>, tombol Role, dll.
+</div>
+
+<div class="app-shell">
+  <div class="app-header">
+    <button class="hamburger-btn" onclick="document.getElementById('sidebar').classList.toggle('hide')">&#9776;</button>
+    <div class="brand">
+      <div class="logo-text">PARK-iR</div>
+      <div class="logo-sub">SISTEM PARKIR BERBASIS DIGITAL</div>
+    </div>
+    <div class="badge"><span class="P">P</span><span class="tag">PARK-IR</span></div>
+  </div>
+
+  <div class="app-body">
+    <div class="sidebar" id="sidebar">
+      <a href="#" class="nav-btn">DASHBOARD</a>
+      <a href="#" class="nav-btn">KEND MASUK</a>
+      <a href="#" class="nav-btn">KEND KELUAR</a>
+      <a href="#" class="nav-btn">RIWAYAT</a>
+      <a href="#" class="nav-btn active">USER</a>
+      <div class="spacer"></div>
+      <a href="#" class="nav-btn">LOGOUT</a>
+    </div>
+
+    <div class="content">
+      <div class="content-head">
+        <h1>TABEL USER</h1>
+        <button class="btn-tambah" onclick="document.getElementById('modalTambah').classList.add('show')">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          TAMBAH USER
+        </button>
+      </div>
+
+      <div class="alert alert-ok" id="alertOk"></div>
+
+      <div class="stats">
+        <div class="stat-card">
+          <div class="stat-icon total"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 12c2.7 0 4.9-2.2 4.9-4.9S14.7 2.2 12 2.2 7.1 4.4 7.1 7.1 9.3 12 12 12zm0 2.5c-3.3 0-9.8 1.6-9.8 4.9V22h19.6v-2.6c0-3.3-6.5-4.9-9.8-4.9z"/></svg></div>
+          <div><div class="stat-label">Total User</div><div class="stat-value" id="statTotal">003 <span class="stat-unit">User</span></div></div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon aktif"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="7" r="4"/><path d="M2 21v-2a4 4 0 0 1 4-4h6"/><path d="m16 11 2 2 4-4"/></svg></div>
+          <div><div class="stat-label">User Aktif</div><div class="stat-value" id="statAktif">002 <span class="stat-unit">User</span></div></div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon nonaktif"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="7" r="4"/><path d="M2 21v-2a4 4 0 0 1 4-4h6"/><line x1="16" y1="10" x2="21" y2="15"/><line x1="21" y1="10" x2="16" y2="15"/></svg></div>
+          <div><div class="stat-label">User Nonaktif</div><div class="stat-value" id="statNonaktif">001 <span class="stat-unit">User</span></div></div>
+        </div>
+      </div>
+
+      <div class="toolbar">
+        <div class="search-box">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          <input type="text" id="searchInput" placeholder="Cari nama, username..." oninput="renderTable()">
+        </div>
+        <button class="btn-filter" type="button" onclick="document.getElementById('filterDropdown').classList.toggle('show')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>
+          Filter
+        </button>
+
+        <div class="filter-dropdown" id="filterDropdown">
+          <button type="button" class="cancel-opt" onclick="document.getElementById('filterDropdown').classList.remove('show')">Cancel</button>
+          <a href="#" onclick="setFilter('sort','asc');return false;">Aa-Zz</a>
+          <a href="#" onclick="setFilter('sort','desc');return false;">Zz-Aa</a>
+          <div class="divider"></div>
+          <a href="#" onclick="setFilter('role','admin');return false;">Admin</a>
+          <a href="#" onclick="setFilter('role','petugas');return false;">Petugas</a>
+          <div class="divider"></div>
+          <a href="#" onclick="setFilter('status','aktif');return false;">Aktif</a>
+          <a href="#" onclick="setFilter('status','nonaktif');return false;">Nonaktif</a>
+        </div>
+      </div>
+
+      <table>
+        <thead>
+          <tr><th>NO.</th><th>NAMA</th><th>ID</th><th>ROLE</th><th>STATUS</th><th>TERAKHIR LOGIN</th><th>AKSI</th></tr>
+        </thead>
+        <tbody id="tableBody"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- ============ MODAL TAMBAH USER ============ -->
+<div class="modal-overlay" id="modalTambah">
+  <div class="modal-card">
+    <button class="modal-close" onclick="document.getElementById('modalTambah').classList.remove('show')">&times;</button>
+
+    <img src="LOGO PARK-iR.png" alt="Logo PARK-iR" class="modal-logo" onerror="this.style.display='none'">
+    <div class="brand">PARK-iR</div>
+    <div class="brand-sub">SISTEM PARKIR BERBASIS DIGITAL</div>
+    <hr>
+    <h2>TAMBAH USER</h2>
+    <p class="desc">SILAHKAN LENGKAPI DATA USER !</p>
+
+    <form id="tambahForm" onsubmit="return handleTambah(event)">
+      <div class="field">
+        <label>NAMA LENGKAP</label>
+        <div class="input-wrap" id="wrap-nama">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+          <input type="text" id="nama" placeholder="MASUKKAN NAMA LENGKAP">
+        </div>
+        <div class="field-error" id="err-nama"></div>
+      </div>
+
+      <div class="field">
+        <label>PASSWORD</label>
+        <div class="input-wrap" id="wrap-password">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+          <input type="password" id="password" placeholder="MASUKAN PASSWORD">
+        </div>
+        <div class="field-error" id="err-password"></div>
+      </div>
+
+      <div class="field">
+        <label>ROLE</label>
+        <div class="role-toggle">
+          <input type="radio" name="role" id="role-admin" value="admin">
+          <label for="role-admin" class="role-btn">ADMIN</label>
+
+          <input type="radio" name="role" id="role-user" value="petugas" checked>
+          <label for="role-user" class="role-btn">USER</label>
+        </div>
+      </div>
+
+      <label class="modal-remember">
+        <input type="checkbox" id="langsungAktif" checked>
+        INGATKAN SAYA
+      </label>
+
+      <button class="btn-tambah-modal" type="submit">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg>
+        TAMBAH
+      </button>
+    </form>
+  </div>
+</div>
+
+<script>
+  // "Database" simulasi in-memory
+  let users = [
+    { id_user: 1, nama: 'admin',     id_pengguna: '262701', role: 'admin',    status: 'aktif',    terakhir: '29 Jul 2026 00:00' },
+    { id_user: 2, nama: 'petugas 1', id_pengguna: '262702', role: 'petugas',  status: 'aktif',    terakhir: '29 Jul 2026 00:00' },
+    { id_user: 3, nama: 'petugas 2', id_pengguna: '262703', role: 'petugas',  status: 'nonaktif', terakhir: '29 Jul 2026 00:00' },
+  ];
+  let activeFilter = { sort: '', role: '', status: '' };
+
+  function setFilter(key, value) {
+    activeFilter[key] = (activeFilter[key] === value) ? '' : value;
+    document.getElementById('filterDropdown').classList.remove('show');
+    renderTable();
+  }
+
+  function updateStats() {
+    document.getElementById('statTotal').innerHTML = String(users.length).padStart(3,'0') + ' <span class="stat-unit">User</span>';
+    document.getElementById('statAktif').innerHTML = String(users.filter(u=>u.status==='aktif').length).padStart(3,'0') + ' <span class="stat-unit">User</span>';
+    document.getElementById('statNonaktif').innerHTML = String(users.filter(u=>u.status==='nonaktif').length).padStart(3,'0') + ' <span class="stat-unit">User</span>';
+  }
+
+  function renderTable() {
+    const q = document.getElementById('searchInput').value.toLowerCase();
+    let list = users.filter(u =>
+      u.nama.toLowerCase().includes(q) || u.id_pengguna.includes(q)
+    );
+    if (activeFilter.role) list = list.filter(u => u.role === activeFilter.role);
+    if (activeFilter.status) list = list.filter(u => u.status === activeFilter.status);
+    if (activeFilter.sort === 'asc') list.sort((a,b)=>a.nama.localeCompare(b.nama));
+    if (activeFilter.sort === 'desc') list.sort((a,b)=>b.nama.localeCompare(a.nama));
+
+    const tbody = document.getElementById('tableBody');
+    tbody.innerHTML = '';
+    if (list.length === 0) {
+      tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;color:#999;padding:24px;">Tidak ada data user.</td></tr>';
+      return;
+    }
+    list.forEach((u, i) => {
+      tbody.innerHTML += `
+        <tr>
+          <td>${i+1}</td>
+          <td>${u.nama}</td>
+          <td>${u.id_pengguna}</td>
+          <td><span class="pill pill-${u.role}">${u.role==='admin'?'Administrator':'Petugas'}</span></td>
+          <td><span class="pill pill-${u.status}">${u.status.charAt(0).toUpperCase()+u.status.slice(1)}</span></td>
+          <td>${u.terakhir}</td>
+          <td>
+            <button class="icon-btn icon-edit" title="Edit" onclick="alert('Demo doang, di kode asli buka edit_user.php')">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.1 2.1 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+            </button>
+            <button class="icon-btn icon-hapus" title="Hapus" onclick="hapusUser(${u.id_user})">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+            </button>
+          </td>
+        </tr>`;
+    });
+  }
+
+  function hapusUser(id) {
+    if (!confirm('Yakin hapus user ini?')) return;
+    users = users.filter(u => u.id_user !== id);
+    updateStats();
+    renderTable();
+  }
+
+  function generateIdAcak() {
+    let id;
+    do { id = String(Math.floor(100000 + Math.random()*900000)); }
+    while (users.some(u => u.id_pengguna === id));
+    return id;
+  }
+
+  function handleTambah(e) {
+    e.preventDefault();
+    document.getElementById('err-nama').textContent = '';
+    document.getElementById('err-password').textContent = '';
+    document.getElementById('wrap-nama').classList.remove('err');
+    document.getElementById('wrap-password').classList.remove('err');
+
+    const nama = document.getElementById('nama').value.trim();
+    const password = document.getElementById('password').value;
+    const role = document.querySelector('input[name="role"]:checked').value;
+    const aktif = document.getElementById('langsungAktif').checked;
+
+    let valid = true;
+    if (!nama) {
+      document.getElementById('wrap-nama').classList.add('err');
+      document.getElementById('err-nama').textContent = 'Nama lengkap wajib diisi.';
+      valid = false;
+    }
+    if (!password || password.length < 6) {
+      document.getElementById('wrap-password').classList.add('err');
+      document.getElementById('err-password').textContent = 'Password minimal 6 karakter.';
+      valid = false;
+    }
+    if (!valid) return false;
+
+    const id_pengguna = generateIdAcak();
+    users.push({
+      id_user: Date.now(),
+      nama, id_pengguna, role,
+      status: aktif ? 'aktif' : 'nonaktif',
+      terakhir: '-'
+    });
+
+    updateStats();
+    renderTable();
+    document.getElementById('modalTambah').classList.remove('show');
+    document.getElementById('tambahForm').reset();
+    document.getElementById('role-user').checked = true;
+
+    const alertBox = document.getElementById('alertOk');
+    alertBox.textContent = `User berhasil ditambahkan. ID login: ${id_pengguna}`;
+    alertBox.classList.add('show');
+    setTimeout(() => alertBox.classList.remove('show'), 4000);
+
+    return false;
+  }
+
+  // Tutup dropdown filter kalau klik di luar
+  document.addEventListener('click', function (e) {
+    const dropdown = document.getElementById('filterDropdown');
+    const filterBtn = document.querySelector('.btn-filter');
+    if (dropdown.classList.contains('show') && !dropdown.contains(e.target) && !filterBtn.contains(e.target)) {
+      dropdown.classList.remove('show');
+    }
+  });
+
+  updateStats();
+  renderTable();
+</script>
+</body>
+</html>
