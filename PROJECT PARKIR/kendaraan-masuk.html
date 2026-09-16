@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PARK-iR — Kendaraan Masuk</title>
+<style>
+  :root{
+    --biru: #6b8ae0;
+    --biru-tua: #1e1eb4;
+    --garis: #111;
+    --merah: #f43b3b;
+    --hijau: #9dc4a8;
+    --abu: #eceaea;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    font-family: "Segoe UI", Tahoma, Verdana, sans-serif;
+    background:#f7f7fb;
+    color:#111;
+  }
+
+  .app{
+    max-width:1440px;
+    margin:0 auto;
+    display:flex;
+    min-height:100vh;
+    border:3px solid var(--garis);
+    background:#fff;
+  }
+
+  /* ---------- SIDEBAR ---------- */
+  .sidebar{
+    width:215px;
+    flex:0 0 215px;
+    background:var(--biru);
+    border-right:3px solid var(--garis);
+    padding:22px 18px 30px;
+    display:flex;
+    flex-direction:column;
+    gap:18px;
+  }
+  .avatar{
+    width:96px;height:96px;
+    margin:0 auto 10px;
+    border-radius:50%;
+    background:#111;
+    position:relative;
+    overflow:hidden;
+  }
+  .avatar::before{
+    content:"";position:absolute;left:50%;top:20px;
+    width:34px;height:34px;border-radius:50%;background:var(--biru);
+    transform:translateX(-50%);
+  }
+  .avatar::after{
+    content:"";position:absolute;left:50%;top:62px;
+    width:66px;height:52px;border-radius:33px 33px 0 0;background:var(--biru);
+    transform:translateX(-50%);
+  }
+  .nav-btn{
+    display:block;width:100%;
+    padding:12px 8px;
+    font-size:18px;
+    font-family:inherit;
+    background:var(--abu);
+    border:2px solid var(--garis);
+    cursor:not-allowed;
+    color:#111;
+    letter-spacing:.5px;
+  }
+  .nav-btn[disabled]{opacity:1;}
+  .nav-btn.aktif{background:#fff;font-weight:700;cursor:default;}
+  .spacer{flex:1;}
+
+  /* ---------- HEADER ---------- */
+  .main{flex:1;display:flex;flex-direction:column;min-width:0;}
+  .topbar{
+    background:var(--biru);
+    border-bottom:3px solid var(--garis);
+    display:flex;align-items:center;justify-content:space-between;
+    padding:10px 24px;
+    gap:16px;
+  }
+  .brand{text-align:center;flex:1;color:#fff;}
+  .brand h1{
+    margin:0;font-size:46px;letter-spacing:1px;font-style:italic;
+    text-shadow:2px 2px 0 #2b2b8a;
+  }
+  .brand p{margin:2px 0 0;font-size:15px;font-weight:600;letter-spacing:1px;}
+  .logo-slot{
+    width:110px;height:110px;flex:0 0 110px;
+    border-radius:50%;
+    border:2px dashed rgba(255,255,255,.75);
+    display:flex;align-items:center;justify-content:center;
+    color:rgba(255,255,255,.85);
+    font-size:12px;text-align:center;line-height:1.3;
+    overflow:hidden;
+  }
+  .logo-slot img{width:100%;height:100%;object-fit:cover;border-radius:50%;}
+  .logo-kiri{visibility:hidden;}
+
+  /* ---------- KONTEN ---------- */
+  .konten{padding:18px 26px 40px;}
+  .judul{
+    color:var(--biru-tua);font-size:26px;font-weight:800;margin:0 0 16px;
+  }
+  .panel-wrap{
+    display:grid;grid-template-columns:1.25fr 1fr;
+    border:2px solid var(--garis);
+  }
+  .panel{padding:20px 22px;}
+  .panel + .panel{border-left:2px solid var(--garis);}
+
+  .panel-head{display:flex;align-items:center;gap:10px;margin-bottom:6px;}
+  .panel-head h2{margin:0;color:var(--biru-tua);font-size:20px;}
+  .clip{font-size:26px;}
+  .sub{margin:0 0 14px;font-size:15px;}
+
+  label.field{display:block;font-weight:700;margin-bottom:6px;font-size:16px;}
+
+  /* input plat */
+  .plat{
+    display:flex;align-items:stretch;
+    border:2px solid var(--garis);
+    background:#fff;
+  }
+  .plat-ikon{
+    flex:0 0 150px;
+    display:flex;align-items:center;justify-content:center;
+    border-right:2px solid var(--garis);
+    padding:10px;
+  }
+  .plat-ikon span{
+    border:3px solid var(--biru-tua);
+    color:var(--biru-tua);
+    font-weight:800;font-size:18px;
+    padding:6px 10px;border-radius:4px;
+    letter-spacing:1px;
+  }
+  .plat-input{display:flex;align-items:center;gap:6px;padding:8px 14px;flex:1;}
+  .plat-input input{
+    border:none;outline:none;font-size:22px;font-weight:700;
+    font-family:inherit;text-transform:uppercase;padding:6px 4px;
+    background:transparent;
+  }
+  .plat-input input:focus{background:#eef2ff;}
+  #kode{width:70px;}
+  #nomor{width:110px;}
+  #huruf{width:110px;}
+
+  /* jenis kendaraan */
+  .jenis{display:flex;gap:22px;margin-top:6px;}
+  .kartu{
+    flex:1;max-width:250px;
+    border:2px solid var(--garis);
+    background:#fff;
+    padding:14px 16px;
+    display:flex;align-items:center;justify-content:space-between;gap:10px;
+    cursor:pointer;font-family:inherit;
+    transition:box-shadow .12s ease;
+  }
+  .kartu .tag{
+    padding:6px 14px;border-radius:6px;font-weight:700;font-size:18px;
+  }
+  .kartu[data-jenis="mobil"] .tag{background:var(--hijau);}
+  .kartu[data-jenis="motor"] .tag{background:var(--merah);color:#fff;}
+  .kartu .gbr{font-size:44px;line-height:1;}
+  .kartu[aria-pressed="true"]{
+    box-shadow:0 0 0 4px var(--biru-tua) inset;
+  }
+
+  /* panel kanan */
+  .panel h3{margin:0 0 10px;font-size:19px;}
+  .lokasi{
+    display:flex;align-items:center;gap:12px;
+    border:2px solid #9aa4c4;border-radius:10px;padding:10px 14px;
+    background:#fff;
+  }
+  .lokasi .p{
+    flex:0 0 40px;height:40px;border-radius:50%;
+    border:3px solid #2f8f5b;color:#2f8f5b;
+    display:flex;align-items:center;justify-content:center;
+    font-weight:800;font-size:20px;
+  }
+  .lokasi select{
+    flex:1;border:none;outline:none;font-size:17px;font-family:inherit;
+    background:transparent;color:#111;
+  }
+
+  .aksi{display:flex;gap:16px;margin-top:20px;}
+  .btn{
+    flex:1;display:flex;align-items:center;justify-content:center;gap:10px;
+    padding:12px 10px;border:none;border-radius:6px;
+    color:#fff;font-size:17px;font-weight:700;font-family:inherit;cursor:pointer;
+  }
+  .btn-batal{background:var(--merah);}
+  .btn-simpan{background:var(--biru-tua);}
+  .btn:active{transform:translateY(1px);}
+
+  .pesan{margin-top:16px;font-size:15px;min-height:22px;}
+  .pesan.error{color:#c01616;font-weight:700;}
+  .pesan.ok{color:#15803d;font-weight:700;}
+
+  /* struk */
+  .struk{
+    margin-top:22px;border:2px dashed #555;padding:16px;
+    font-family:"Courier New",monospace;font-size:15px;line-height:1.6;
+    display:none;
+  }
+  .struk.tampil{display:block;}
+  .struk h4{margin:0 0 4px;text-align:center;letter-spacing:2px;}
+  .struk .baris{display:flex;justify-content:space-between;}
+  .struk .kode{
+    text-align:center;font-size:22px;font-weight:700;letter-spacing:3px;
+    margin-top:10px;border-top:1px dashed #555;padding-top:10px;
+  }
+
+  @media print{
+    .sidebar,.topbar,.judul,.panel-wrap{display:none;}
+    .struk{border:none;}
+  }
+  @media (max-width:900px){
+    .panel-wrap{grid-template-columns:1fr;}
+    .panel + .panel{border-left:none;border-top:2px solid var(--garis);}
+    .app{flex-direction:column;}
+    .sidebar{width:100%;flex:none;}
+  }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="avatar"></div>
+    <button class="nav-btn" disabled>DASHBOARD</button>
+    <button class="nav-btn" disabled>KEND KELUAR</button>
+    <button class="nav-btn" disabled>RIWAYAT</button>
+    <button class="nav-btn" disabled>USER</button>
+    <div class="spacer"></div>
+    <button class="nav-btn" disabled>LOGOUT</button>
+  </aside>
+
+  <div class="main">
+    <!-- HEADER -->
+    <header class="topbar">
+      <div class="logo-slot logo-kiri"></div>
+      <div class="brand">
+        <h1>PARK-iR</h1>
+        <p>SISTEM PARKIR BERBASIS DIGITAL</p>
+      </div>
+      <!-- Ganti isi div ini dengan <img src="logo.png" alt="Logo PARK-iR"> -->
+      <div class="logo-slot">logo<br>di sini</div>
+    </header>
+
+    <main class="konten">
+      <h2 class="judul">KENDARAAN MASUK</h2>
+
+      <div class="panel-wrap">
+        <!-- KIRI: form -->
+        <section class="panel">
+          <div class="panel-head">
+            <span class="clip">📋</span>
+            <h2>INPUT KENDARAAN MASUK</h2>
+          </div>
+          <p class="sub">Silakan isi kendaraan yang akan masuk</p>
+
+          <label class="field" for="kode">Nomor Plat Kendaraan</label>
+          <div class="plat">
+            <div class="plat-ikon"><span>ABC-123</span></div>
+            <div class="plat-input">
+              <input id="kode"  maxlength="2" placeholder="B"    autocomplete="off">
+              <input id="nomor" maxlength="4" placeholder="1234" inputmode="numeric" autocomplete="off">
+              <input id="huruf" maxlength="3" placeholder="KSS"  autocomplete="off">
+            </div>
+          </div>
+
+          <label class="field" style="margin-top:22px;">Jenis Kendaraan</label>
+          <div class="jenis">
+            <button type="button" class="kartu" data-jenis="mobil" aria-pressed="false">
+              <span class="tag">Mobil</span><span class="gbr">🚗</span>
+            </button>
+            <button type="button" class="kartu" data-jenis="motor" aria-pressed="false">
+              <span class="tag">Motor</span><span class="gbr">🛵</span>
+            </button>
+          </div>
+        </section>
+
+        <!-- KANAN: lokasi + aksi -->
+        <section class="panel">
+          <h3>Lokasi Parkir (opsional)</h3>
+          <div class="lokasi">
+            <div class="p">P</div>
+            <select id="lokasi">
+              <option value="">Pilih Lokasi Parkir</option>
+              <option>Blok A — Lantai 1</option>
+              <option>Blok B — Lantai 1</option>
+              <option>Blok C — Lantai 2</option>
+              <option>Basement</option>
+              <option>Area Motor</option>
+            </select>
+          </div>
+
+          <div class="aksi">
+            <button class="btn btn-batal"  id="btnBatal">✕ &nbsp;Batal</button>
+            <button class="btn btn-simpan" id="btnSimpan">✓ &nbsp;Simpan &amp; Cetak</button>
+          </div>
+
+          <p class="pesan" id="pesan"></p>
+
+          <div class="struk" id="struk">
+            <h4>PARK-iR</h4>
+            <div style="text-align:center;">Tiket Masuk Kendaraan</div>
+            <div class="baris"><span>No. Tiket</span><span id="sTiket"></span></div>
+            <div class="baris"><span>Plat</span><span id="sPlat"></span></div>
+            <div class="baris"><span>Jenis</span><span id="sJenis"></span></div>
+            <div class="baris"><span>Lokasi</span><span id="sLokasi"></span></div>
+            <div class="baris"><span>Masuk</span><span id="sWaktu"></span></div>
+            <div class="kode" id="sKode"></div>
+          </div>
+        </section>
+      </div>
+    </main>
+  </div>
+</div>
+
+<script>
+/* ---------- state ---------- */
+let jenisTerpilih = null;
+let urutan = 0;
+const daftarMasuk = [];          // data kendaraan yang sudah masuk
+
+const $ = id => document.getElementById(id);
+const pesan = $('pesan');
+
+/* ---------- pilih jenis kendaraan ---------- */
+document.querySelectorAll('.kartu').forEach(k => {
+  k.addEventListener('click', () => {
+    document.querySelectorAll('.kartu').forEach(x => x.setAttribute('aria-pressed','false'));
+    k.setAttribute('aria-pressed','true');
+    jenisTerpilih = k.dataset.jenis;
+    bersihkanPesan();
+  });
+});
+
+/* ---------- input plat: huruf/angka otomatis ---------- */
+$('kode').addEventListener('input', e => {
+  e.target.value = e.target.value.replace(/[^a-zA-Z]/g,'').toUpperCase();
+  if (e.target.value.length === 2) $('nomor').focus();
+  bersihkanPesan();
+});
+$('nomor').addEventListener('input', e => {
+  e.target.value = e.target.value.replace(/\D/g,'');
+  if (e.target.value.length === 4) $('huruf').focus();
+  bersihkanPesan();
+});
+$('huruf').addEventListener('input', e => {
+  e.target.value = e.target.value.replace(/[^a-zA-Z]/g,'').toUpperCase();
+  bersihkanPesan();
+});
+
+function bersihkanPesan(){ pesan.textContent=''; pesan.className='pesan'; }
+
+/* ---------- validasi ---------- */
+function validasi(){
+  const kode  = $('kode').value.trim();
+  const nomor = $('nomor').value.trim();
+  const huruf = $('huruf').value.trim();
+
+  if (!kode)  return 'Kode wilayah plat belum diisi.';
+  if (!nomor) return 'Nomor plat belum diisi.';
+  if (!/^\d{1,4}$/.test(nomor)) return 'Nomor plat harus 1–4 angka.';
+  if (!huruf) return 'Huruf belakang plat belum diisi.';
+  if (!jenisTerpilih) return 'Pilih jenis kendaraan dulu (mobil atau motor).';
+
+  const plat = `${kode} ${nomor} ${huruf}`;
+  if (daftarMasuk.some(d => d.plat === plat && d.status === 'masuk'))
+    return `Kendaraan ${plat} tercatat masih di dalam area parkir.`;
+
+  return null;   // lolos
+}
+
+/* ---------- simpan & cetak ---------- */
+$('btnSimpan').addEventListener('click', () => {
+  const salah = validasi();
+  if (salah){
+    pesan.textContent = salah;
+    pesan.className = 'pesan error';
+    $('struk').classList.remove('tampil');
+    return;
+  }
+
+  urutan++;
+  const now  = new Date();
+  const plat = `${$('kode').value} ${$('nomor').value} ${$('huruf').value}`;
+  const data = {
+    tiket : 'PK' + now.getFullYear()
+            + String(now.getMonth()+1).padStart(2,'0')
+            + String(now.getDate()).padStart(2,'0')
+            + '-' + String(urutan).padStart(3,'0'),
+    plat  : plat,
+    jenis : jenisTerpilih === 'mobil' ? 'Mobil' : 'Motor',
+    lokasi: $('lokasi').value || '-',
+    waktu : now.toLocaleString('id-ID', {dateStyle:'short', timeStyle:'short'}),
+    tarif : jenisTerpilih === 'mobil' ? 5000 : 2000,
+    status: 'masuk'
+  };
+  daftarMasuk.push(data);
+
+  $('sTiket').textContent  = data.tiket;
+  $('sPlat').textContent   = data.plat;
+  $('sJenis').textContent  = data.jenis;
+  $('sLokasi').textContent = data.lokasi;
+  $('sWaktu').textContent  = data.waktu;
+  $('sKode').textContent   = data.tiket;
+  $('struk').classList.add('tampil');
+
+  pesan.textContent = `Tersimpan. Tiket ${data.tiket} untuk ${data.plat}.`;
+  pesan.className = 'pesan ok';
+
+  setTimeout(() => window.print(), 300);   // cetak struk
+  kosongkanForm(false);
+});
+
+/* ---------- batal ---------- */
+$('btnBatal').addEventListener('click', () => {
+  kosongkanForm(true);
+  $('struk').classList.remove('tampil');
+  pesan.textContent = 'Input dibatalkan, form dikosongkan.';
+  pesan.className = 'pesan';
+});
+
+function kosongkanForm(resetLokasi){
+  $('kode').value = $('nomor').value = $('huruf').value = '';
+  document.querySelectorAll('.kartu').forEach(x => x.setAttribute('aria-pressed','false'));
+  jenisTerpilih = null;
+  if (resetLokasi) $('lokasi').value = '';
+  $('kode').focus();
+}
+</script>
+</body>
+</html>
