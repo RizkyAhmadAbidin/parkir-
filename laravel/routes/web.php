@@ -37,8 +37,9 @@ Route::middleware('auth')->group(function () {
     Route::post('/kendaraan-masuk', [DashboardController::class, 'storeMasuk'])->name('kendaraan.masuk.store');
     Route::post('/kendaraan-masuk/otomatis', [DashboardController::class, 'storeOtomatis'])->name('kendaraan-masuk.store-otomatis');
     // Kendaraan Keluar
-    Route::get('/kendaraan-keluar', [DashboardController::class, 'halamanKeluar'])->name('kendaraan.keluar.form');
-    Route::post('/kendaraan-keluar/proses/{id}', [DashboardController::class, 'storeKeluar'])->name('kendaraan.keluar.store');
+    // Kendaraan Keluar
+Route::match(['get', 'post'], '/kendaraan-keluar', [DashboardController::class, 'halamanKeluar'])->name('kendaraan.keluar.form');
+Route::post('/kendaraan-keluar/proses/{id}', [DashboardController::class, 'storeKeluar'])->name('kendaraan.keluar.store');
 
     // Riwayat
     Route::get('/riwayat', [DashboardController::class, 'riwayat'])->name('riwayat');

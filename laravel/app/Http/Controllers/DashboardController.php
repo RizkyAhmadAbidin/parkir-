@@ -87,39 +87,68 @@ class DashboardController extends Controller
         return view('masuk');
     }
 
-    public function halamanKeluar(Request $request) {
+    public function halamanKeluar(Request $request)
+{
+    $transaksi = null;
+    $durasiJam = 0;
+    $totalBiaya = 0;
 
-        $transaksi = null;
+    // 1. Hitung variabel Ringkasan Sesi Parkir yang dipanggil view
+    $kendaraanSedangParkir = Transaksi::where('status', 'masuk')->count();
 
-        if ($request->has('plat_1') && $request->has('plat_2') && $request->has('plat_3')) {
-            $noPlatCari = strtoupper($request->plat_1 . ' ' . $request->plat_2 . ' ' . $request->plat_3 );
+    $trxKeluarTerakhir = Transaksi::where('status', 'keluar')->latest('waktu_keluar')->first();
+    $waktuKeluarTerakhir = $trxKeluarTerakhir ? \Carbon\Carbon::parse($trxKeluarTerakhir->waktu_keluar)->format('H:i') . ' WIB' : '-';
 
-            $transaksi = Transaksi::where('no_plat', $noPlatCari)
-                                  ->where('status', 'Masuk')
-                                  ->first();
+    // 2. Jika user melakukan pencarian nomor plat
+    if ($request->has('no_plat') && $request->no_plat != '') {
+        $transaksi = Transaksi::where('no_plat', 'like', '%' . trim($request->no_plat) . '%')
+                              ->where('status', 'masuk')
+                              ->latest('waktu_masuk')
+                              ->first();
 
-            if (!$transaksi) {
-                return redirect()->back()->with('error', 'Kendaran dengan plat nomor' . $noPlatCari . 'tidak ditemukan atau sudah keluar!');
+        if ($transaksi) {
+            $waktuMasuk = \Carbon\Carbon::parse($transaksi->waktu_masuk);
+            $waktuKeluar = \Carbon\Carbon::now();
+
+            // Hitung durasi jam
+            $durasiJam = ceil($waktuMasuk->diffInMinutes($waktuKeluar) / 60);
+            if ($durasiJam < 1) {
+                $durasiJam = 1;
             }
+
+            // Tarif: Mobil = Rp 5.000/jam | Motor = Rp 2.000/jam
+            $tarifPerJam = ($transaksi->jenis_kendaraan == 'Mobil') ? 5000 : 2000;
+            $totalBiaya = $durasiJam * $tarifPerJam;
+        } else {
+            return redirect()->route('kendaraan.keluar.form')
+                             ->with('error', 'Kendaraan dengan plat ' . $request->no_plat . ' tidak ditemukan atau sudah keluar!');
         }
-
-        return view('keluar', compact('transaksi'));
     }
 
-    public function storeKeluar(Request $request, $id) {
-        
-        $transaksi = Transaksi::findOrFail($id);
+    // 3. Kirim semua variabel ke view kendaraan-keluar
+    return view('keluar', compact(
+        'transaksi', 
+        'durasiJam', 
+        'totalBiaya', 
+        'kendaraanSedangParkir', 
+        'waktuKeluarTerakhir'
+    ));
+}
 
-        $biayaParkir = 5000;
+    public function storeKeluar(Request $request, $id)
+{
+    $transaksi = Transaksi::findOrFail($id);
 
-        $transaksi->update([
-            'status' => 'Keluar',
-            'waktu_keluar' => now(),
-            'biaya' => $biayaParkir,
-        ]);
+    $transaksi->update([
+        'waktu_keluar' => \Carbon\Carbon::now(),
+        'biaya'        => $request->input('biaya', 0),
+        'status'       => 'keluar',
+        'id_petugas'   => auth()->id(),
+    ]);
 
-        return redirect()->route('kendaraan.keluar.form')->with('success', 'Kendaraan'  . $transaksi->no_plat . ' berhasil keluar! Biaya Rp ' . number_format($biayaParkir, 0, ',','.'));
-    }
+    return redirect()->route('kendaraan.keluar.form')
+                     ->with('success', 'Transaksi selesai! Kendaraan ' . $transaksi->no_plat . ' telah keluar.');
+}
 
 
     public function storeMasuk(Request $request) {
