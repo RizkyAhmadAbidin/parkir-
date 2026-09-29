@@ -23,6 +23,12 @@ class AuthController extends Controller
         ]);
 
         if (Auth::attempt($credentials)) {
+
+            if (Auth::user()->status === 'nonaktif') {
+                Auth::logout();
+                return redirect()->back()->with('error', 'Akun Anda dinonaktifkan! Silakan hubungi Admin.');
+            }
+
             $request->session()->regenerate();
             return redirect()->intended('/dashboard');
         }

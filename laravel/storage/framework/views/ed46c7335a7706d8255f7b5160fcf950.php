@@ -342,7 +342,7 @@
     <div class="card">
       <div class="logo-wrap">
         <div class="logo-badge">
-          <img src="BACKGROUND.png" alt="Logo PARK-iR"
+          <img src="BACKGROUND.jpg" alt="Logo PARK-iR"
                onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
           <div class="logo-fallback">
             <span class="P">P</span>
@@ -367,7 +367,7 @@
       <?php endif; ?>
 
     
-      <form action="<?php echo e(route('loginn')); ?>" method="POST">
+      <form action="<?php echo e(route('login')); ?>" method="POST">
         <?php echo csrf_field(); ?> 
         
         <div class="field">

@@ -342,7 +342,7 @@
     <div class="card">
       <div class="logo-wrap">
         <div class="logo-badge">
-          <img src="BACKGROUND.png" alt="Logo PARK-iR"
+          <img src="BACKGROUND.jpg" alt="Logo PARK-iR"
                onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
           <div class="logo-fallback">
             <span class="P">P</span>
@@ -366,7 +366,7 @@
       @endif
 
     
-      <form action="{{ route('loginn') }}" method="POST">
+      <form action="{{ route('login') }}" method="POST">
         @csrf 
         
         <div class="field">

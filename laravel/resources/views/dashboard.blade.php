@@ -1,239 +1,144 @@
-<!DOCTYPE html>
-<html lang="id">
+@extends('layouts.main')
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PARK-iR | Dashboard</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link
-        href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,400;0,600;0,700;0,800;1,800;1,900&family=Poppins:wght@400;500;600;700&display=swap"
-        rel="stylesheet">
-</head>
+@section('title', 'Dashboard Admin')
 
-<body>
-<!DOCTYPE html>
-<html lang="id">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PARK-iR | Dashboard Admin</title>
-    <!-- Memanggil CSS eksternal dari folder public/css/style.css -->
-    <link rel="stylesheet" href="{{ asset('css/style.css') }}">
-</head>
-<body>
-    <div class="dash" id="dash">
+@section('container')
 
-        <!-- Topbar -->
-        <header class="topbar">
-            <div class="topbar-left"></div>
-            <div class="topbar-right">
-                <div class="brand-block">
-                    <div class="brand-title">PARK-iR</div>
-                    <div class="brand-sub">SISTEM PARKIR BERBASIS DIGITAL</div>
+    <!-- Hero Banner -->
+    <div class="hero-banner">
+        <div class="hero-decoration"></div>
+        <div class="small-text">Welcome Back</div>
+        <h1>Hello, Admin 👋</h1>
+        <p>Kelola sistem parkir Anda dengan efisien dari satu dashboard terpusat.</p>
+    </div>
+
+    <!-- Warning Occupancy -->
+    @if(isset($occupancyRate) && $occupancyRate > 80)
+        <div style="background: #fff3cd; color: #856404; padding: 15px 20px; border-radius: 12px; margin-bottom: 20px; border-left: 5px solid #ffc107; font-size: 14px;">
+            <i class="fa-solid fa-triangle-exclamation" style="margin-right: 10px;"></i>
+            <strong>Peringatan:</strong> Kapasitas parkir hampir penuh ({{ round($occupancyRate) }}% terisi).
+        </div>
+    @endif
+
+    <!-- Statistik Cards -->
+    <div class="stats-grid">
+        
+        <!-- Card 1 -->
+        <div class="card-stat">
+    <div style="font-size: 28px; font-weight: 800; color: #4361ee;">
+        {{ $kendaraanSedangParkir }}
+    </div>
+    <div style="font-size: 12px; font-weight: 600; color: #64748b; text-transform: uppercase;">
+        KENDARAAN PARKIR
+    </div>
+    <div style="font-size: 11px; color: #94a3b8; margin-top: 4px;">
+        M: {{ $mobilParkir }} | K: {{ $motorParkir }}
+    </div>
+</div>
+
+        <!-- Card 2 -->
+        <div class="card-stat">
+    <div style="font-size: 28px; font-weight: 800; color: #16a34a;">
+        {{ $slotTersisa }}
+    </div>
+    <div style="font-size: 12px; font-weight: 600; color: #64748b; text-transform: uppercase;">
+        SLOT TERSISA
+    </div>
+    <div style="font-size: 11px; color: #94a3b8; margin-top: 4px;">
+        Dari total 100 slot
+    </div>
+</div>
+
+        <!-- Card 3 -->
+        <div class="stat-card">
+            <div class="stat-info">
+                <div class="num" style="color: #ea580c;">{{ $totalOperator ?? 0 }}</div>
+                <div class="label">Total Operator</div>
+                <div style="font-size: 11px; color: #aaa; margin-top: 5px;">Termasuk {{ $totalAdmin ?? 0 }} Admin</div>
+            </div>
+            <div class="stat-icon icon-orange">
+                <i class="fa-solid fa-users"></i>
+            </div>
+        </div>
+
+        <!-- Card 4 -->
+        <div class="stat-card">
+            <div class="stat-info">
+                <div class="num" style="color: #9333ea; font-size: 22px; margin-top: 5px;">Rp{{ number_format($pendapatanHarian, 0, ',', '.') }}</div>
+                <div class="label">Pendapatan Harian</div>
+                <div style="font-size: 11px; color: #aaa; margin-top: 5px;">
+                    Trend: <span style="color: {{ $trendRevenue > 0 ? '#16a34a' : '#dc2626' }}">{{ $trendRevenue > 0 ? '+' : '' }}{{ round($trendRevenue) }}%</span>
                 </div>
             </div>
-        </header>
-
-        <!-- Sidebar -->
-        <aside class="sidebar" id="sidebar">
-            <nav class="nav-list">
-                <a href="{{ route('dashboard') }}" class="nav-btn" style="background: #cfcfcf;">DASHBOARD</a>
-                <a href="{{ route('kendaraan.masuk.form') }}" class="nav-btn">KEND MASUK</a>
-                <a href="{{ route('kendaraan.keluar.form') }}" class="nav-btn">KEND KELUAR</a>
-                <a href="{{ route('riwayat') }}" class="nav-btn">RIWAYAT</a>
-            </nav>
-            <form action="{{ route('logout') }}" method="POST">
-                @csrf
-                <button type="submit" class="nav-btn logout-btn" style="width: 100%;">LOGOUT</button>
-            </form>
-        </aside>
-
-        <!-- Konten Dashboard Utama -->
-        <main class="content">
-            <h1 class="welcome" style="font-size: 20px; font-weight: 700; margin-bottom: 24px;">SELAMAT DATANG ADMIN!</h1>
-
-            <!-- Statistik Ringkasan -->
-            <div style="display: flex; gap: 40px; margin-bottom: 30px;">
-                <div>
-                    <h3 style="font-size: 14px; color: #555; margin-bottom: 8px;">KENDARAAN PARKIR</h3>
-                    <div style="font-size: 15px; font-weight: 600;">
-                        Masuk: <span style="color: #2f327d;">{{ $kendaraanMasuk }}</span> 
-                        <span style="margin: 0 10px;">|</span> 
-                        Keluar: <span style="color: #e3453b;">{{ $kendaraanKeluar }}</span>
-                    </div>
-                </div>
-                <div>
-                    <h3 style="font-size: 14px; color: #555; margin-bottom: 8px;">PENDAPATAN HARIAN</h3>
-                    <div style="font-size: 18px; font-weight: 700; color: #101114;">
-                        Rp {{ number_format($pendapatanHarian, 0, ',', '.') }}
-                    </div>
-                </div>
+            <div class="stat-icon icon-purple">
+                <i class="fa-solid fa-wallet"></i>
             </div>
+        </div>
 
-            <hr style="border: none; border-top: 1.5px solid #c9c9c9; margin-bottom: 30px;">
+    </div>
 
-            <!-- Waktu Terbaru -->
-            <div style="display: flex; gap: 60px; margin-bottom: 30px; font-size: 14px; font-weight: 600;">
-                <div>Masuk Terakhir : <span style="font-weight: 400;">{{ $waktuMasukTerakhir }}</span></div>
-                <div>Keluar terakhir : <span style="font-weight: 400;">{{ $waktuKeluarTerakhir }}</span></div>
+    <!-- Content Grid (Tabel & Aktivitas) -->
+    <div class="content-grid">
+        
+        <!-- Tabel Transaksi -->
+        <div class="card-white">
+            <div class="card-title">
+                Transaksi Terbaru
+                <a href="{{ route('riwayat') }}" style="font-size: 12px; color: #4361ee; text-decoration: none; font-weight: 600;">Lihat Semua <i class="fa-solid fa-arrow-right"></i></a>
             </div>
-
-            <!-- Tabel Transaksi Terbaru -->
-            <div style="border: 1.5px solid #b9b9bb; border-radius: 12px; padding: 20px; max-width: 900px; background: #fff;">
-                <h3 style="font-size: 14px; font-weight: 700; margin-bottom: 15px;">TRANSAKSI TERBARU</h3>
-                <table style="width: 100%; border-collapse: collapse; text-align: left; font-size: 13px;">
-                    <thead>
-                        <tr style="border-bottom: 2px solid #101114;">
-                            <th style="padding: 8px; width: 10%;">NO.</th>
-                            <th style="padding: 8px; width: 30%;">NO PLAT</th>
-                            <th style="padding: 8px; width: 25%;">STATUS</th>
-                            <th style="padding: 8px; width: 35%;">WAKTU</th>
+            <table>
+                <thead>
+                    <tr>
+                        <th>No Plat</th>
+                        <th>Status</th>
+                        <th>Waktu</th>
+                        <th>Durasi</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @forelse($transaksiTerbaru as $index => $trx)
+                        <tr>
+                            <td style="font-weight: 600;">{{ $trx->no_plat }}</td>
+                            <td>
+                                <span class="badge {{ $trx->status == 'Masuk' ? 'badge-masuk' : 'badge-keluar' }}">
+                                    {{ $trx->status }}
+                                </span>
+                            </td>
+                            <td>{{ $trx->waktu_masuk ? $trx->waktu_masuk->format('H:i') : '-' }} WIB</td>
+                            <td>{{ $trx->durasi_parkir ?? '-' }} jam</td>
                         </tr>
-                    </thead>
-                    <tbody>
-                        @forelse($transaksiTerbaru as $index => $trx)
-                            <tr style="border-bottom: 1px solid #eee;">
-                                <td style="padding: 10px 8px;">{{ $index + 1 }}</td>
-                                <td style="padding: 10px 8px; font-weight: 600;">{{ $trx->no_plat }}</td>
-                                <td style="padding: 10px 8px;">
-                                    <span style="padding: 4px 8px; border-radius: 4px; font-size: 11px; background: {{ $trx->status == 'Masuk' ? '#d4edda' : '#f8d7da' }}; color: {{ $trx->status == 'Masuk' ? '#155724' : '#721c24' }};">
-                                        {{ $trx->status }}
-                                    </span>
-                                </td>
-                                <td style="padding: 10px 8px;">
-                                    {{ $trx->waktu_masuk ? $trx->waktu_masuk->format('H:i') : '-' }} WIB
-                                </td>
-                            </tr>
-                        @empty
-                            <tr>
-                                <td colspan="4" style="text-align: center; padding: 20px; color: #777;">Belum ada data transaksi hari ini.</td>
-                            </tr>
-                        @endforelse
-                    </tbody>
-                </table>
-            </div>
-        </main>
+                    @empty
+                        <tr>
+                            <td colspan="4" style="text-align: center; color: #888;">Belum ada data transaksi hari ini.</td>
+                        </tr>
+                    @endforelse
+                </tbody>
+            </table>
+        </div>
 
-    </div>
-</body>
-</html>
-    <div class="dash" id="dash">
-
-        <header class="topbar">
-            <div class="topbar-left">
-                <button class="icon-btn" id="navToggle" aria-label="Tampilkan / sembunyikan navbar">
-                    <svg class="icon-profile" viewBox="0 0 24 24" fill="currentColor">
-                        <circle cx="12" cy="8" r="4"></circle>
-                        <path d="M4 20c0-4.4 3.6-8 8-8s8 3.6 8 8"></path>
-                    </svg>
-                    <svg class="icon-hamburger" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"
-                        stroke-linecap="round">
-                        <line x1="3" y1="6" x2="21" y2="6"></line>
-                        <line x1="3" y1="12" x2="21" y2="12"></line>
-                        <line x1="3" y1="18" x2="21" y2="18"></line>
-                    </svg>
-                </button>
-            </div>
-            <div class="topbar-right">
-                <div class="brand-block">
-                    <div class="brand-title">PARK-iR</div>
-                    <div class="brand-sub">SISTEM PARKIR BERBASIS DIGITAL</div>
+        <!-- Waktu Terakhir & Durasi -->
+        <div style="display: flex; flex-direction: column; gap: 20px;">
+            <div class="card-white">
+                <div class="card-title">Aktivitas Terakhir</div>
+                <div style="margin-bottom: 15px;">
+                    <div style="font-size: 11px; color: #888; font-weight: 600; text-transform: uppercase;">Masuk Terakhir</div>
+                    <div style="font-size: 15px; font-weight: 500; color: #333;"><i class="fa-regular fa-clock" style="color: #16a34a; margin-right: 5px;"></i> {{ $waktuMasukTerakhir ?? '-' }}</div>
                 </div>
-                <div class="topbar-logo">
-                    <img src="LOGO PARK-iR.png" alt="Logo PARK-iR"
-                        onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
-                    <div class="logo-fallback">
-                        <span class="P">P</span>
-                        <span class="tag">PARK-IR</span>
-                    </div>
+                <div>
+                    <div style="font-size: 11px; color: #888; font-weight: 600; text-transform: uppercase;">Keluar Terakhir</div>
+                    <div style="font-size: 15px; font-weight: 500; color: #333;"><i class="fa-regular fa-clock" style="color: #dc2626; margin-right: 5px;"></i> {{ $waktuKeluarTerakhir ?? '-' }}</div>
                 </div>
             </div>
-        </header>
 
-        <aside class="sidebar" id="sidebar">
-            <nav class="nav-list">
-                <a href="{{ route('dashboard') }}" class="nav-btn" style="text-decoration:none; display:block;">DASHBOARD</a>
-                <a href="{{ route('kendaraan.masuk.form') }}" class="nav-btn" style="text-decoration:none; display:block;">KEND MASUK</a>
-                <a href="{{ route('kendaraan.keluar.form') }}" class="nav-btn" style="text-decoration:none; display:block;">KEND KELUAR</a>
-                <a href="#" class="nav-btn" style="text-decoration: none; display:block;">RIWAYAT</a>
-            </nav>
-
-            <form action="{{ route('logout') }}" method="POST">
-                @csrf
-                <button type="submit" class="nav-btn logout-btn" style="width: 100%">LOGOUT</button>
-            </form>
-            <button class="nav-btn logout-btn">LOGOUT</button>
-        </aside>
-
-        <main class="content">
-            <h1 class="welcome">SELAMAT DATANG ADMIN!</h1>
-
-            <div class="stats-area">
-                <div class="stats-cols">
-
-                    <div class="stat-block">
-                        <div class="stat-label">KENDARAAN PARKIR</div>
-                        <div class="stat-pair">
-                            <div class="stat-item"><span class="stat-sub">Masuk</span><span class="stat-num"
-                                    id="statMasuk"></span></div>
-                            <span class="stat-sep">|</span>
-                            <div class="stat-item"><span class="stat-sub">Keluar</span><span class="stat-num"
-                                    id="statKeluar"></span></div>
-                        </div>
-                    </div>
-
-                    <div class="stat-block">
-                        <div class="stat-label">PENDAPATAN HARIAN</div>
-                        <div class="stat-num-big" id="statPendapatan"></div>
-                    </div>
-
-                    <hr class="stat-line">
-
-                    <div class="stat-block">
-                        <div class="stat-label">TRANSAKSI TERBARU</div>
-                    </div>
-
-                    <div class="stat-block">
-                        <div class="stat-label">WAKTU TERBARU</div>
-                        <div class="stat-time">Masuk Terakhir&nbsp;|&nbsp;<span id="waktuMasukTerakhir"></span></div>
-                        <div class="stat-time">Keluar terakhir&nbsp;|&nbsp;<span id="waktuKeluarTerakhir"></span></div>
-                    </div>
-
+            <div class="card-white" style="background: linear-gradient(135deg, #4361ee 0%, #3a0ca3 100%); color: white;">
+                <div class="card-title" style="color: white; opacity: 0.9;">Durasi Rata-rata</div>
+                <div style="font-size: 32px; font-weight: 700; margin-bottom: 5px;">
+                    <i class="fa-solid fa-hourglass-half" style="font-size: 24px; opacity: 0.8;"></i> {{ $durasiRataRata ?? 0 }} <span style="font-size: 16px; font-weight: 500; opacity: 0.8;">jam</span>
                 </div>
-
-                <div class="table-card">
-                    <div class="table-title">TRANSAKSI TERBARU</div>
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>NO.</th>
-                                <th>NO PLAT</th>
-                                <th>STATUS</th>
-                                <th>WAKTU</th>
-                            </tr>
-                        </thead>
-                        <tbody id="transaksiBody">
-                        </tbody>
-                    </table>
-                </div>
-
+                <div style="font-size: 12px; opacity: 0.8;">Rata-rata waktu parkir kendaraan hari ini.</div>
             </div>
-        </main>
+        </div>
 
     </div>
 
-    <script>
-        const dash = document.getElementById('dash');
-        const navToggle = document.getElementById('navToggle');
-
-        navToggle.addEventListener('click', () => {
-            dash.classList.toggle('collapsed');
-            dash.style.setProperty('--side-w', dash.classList.contains('collapsed') ? '70px' : '186px');
-        });
-    </script>
-
-</body>
-
-</html>
+@endsection

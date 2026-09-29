@@ -1,118 +1,70 @@
-<!DOCTYPE html>
-<html lang="id">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PARK-iR | Kendaraan Keluar</title>
-    <link rel="stylesheet" href="<?php echo e(asset('css/style.css')); ?>">
-</head>
-<body>
-    <div class="dash" id="dash">
 
-        <!-- Topbar -->
-        <header class="topbar">
-            <div class="topbar-left"></div>
-            <div class="topbar-right">
-                <div class="brand-block">
-                    <div class="brand-title">PARK-iR</div>
-                    <div class="brand-sub">SISTEM PARKIR BERBASIS DIGITAL</div>
-                </div>
-            </div>
-        </header>
 
-        <!-- Sidebar -->
-        <aside class="sidebar" id="sidebar">
-            <nav class="nav-list">
-                <a href="<?php echo e(route('dashboard')); ?>" class="nav-btn">DASHBOARD</a>
-                <a href="<?php echo e(route('kendaraan.masuk.form')); ?>" class="nav-btn">KEND MASUK</a>
-                <a href="<?php echo e(route('kendaraan.keluar.form')); ?>" class="nav-btn" style="background: #cfcfcf;">KEND KELUAR</a>
-                <a href="<?php echo e(route('riwayat')); ?>" class="nav-btn">RIWAYAT</a>
-            </nav>
-            <form action="<?php echo e(route('logout')); ?>" method="POST">
-                <?php echo csrf_field(); ?>
-                <button type="submit" class="nav-btn logout-btn" style="width: 100%;">LOGOUT</button>
-            </form>
-        </aside>
+<?php $__env->startSection('title', 'Kendaraan Keluar'); ?>
 
-        <!-- Konten Utama -->
-        <main class="content">
-            <h1 class="welcome" style="font-size: 20px; font-weight: 700; margin-bottom: 5px;">KENDARAAN KELUAR</h1>
-            <div style="font-size: 13px; font-weight: 700; color: #2f327d; margin-bottom: 4px;">INPUT DATA KENDARAAN KELUAR</div>
-            <div style="font-size: 12px; color: #6b6b6f; margin-bottom: 20px;">SILAHKAN CARI MANUAL ATAU SCAN BARCODE TICKET</div>
+<?php $__env->startSection('container'); ?>
 
-            <!-- Notifikasi Sukses / Error -->
-            <?php if(session('success')): ?>
-                <div style="background: #d4edda; color: #155724; padding: 12px; border-radius: 6px; margin-bottom: 15px; font-size: 13px; font-weight: 600;">
-                    <?php echo e(session('success')); ?>
-
-                </div>
-            <?php endif; ?>
-            <?php if(session('error')): ?>
-                <div style="background: #f8d7da; color: #721c24; padding: 12px; border-radius: 6px; margin-bottom: 15px; font-size: 13px; font-weight: 600;">
-                    <?php echo e(session('error')); ?>
-
-                </div>
-            <?php endif; ?>
-
-            <!-- Tombol Pilihan (Scan / Cari Manual) -->
-            <div style="display: flex; gap: 20px; margin-bottom: 20px;">
-                <button type="button" style="flex: 1; background: #6b9ac4; color: #fff; border: none; padding: 14px; border-radius: 8px; font-weight: 600; cursor: pointer;">SCAN TIKET / BARCODE</button>
-                <button type="button" onclick="toggleFormCari()" style="flex: 1; background: #6b9ac4; color: #fff; border: none; padding: 14px; border-radius: 8px; font-weight: 600; cursor: pointer;">CARI MANUAL</button>
-            </div>
-
-            <!-- Form Input Cari Plat (Disembunyikan dulu sebelum tombol Cari Manual diklik) -->
-            <div id="formCariBox" style="display: <?php echo e(request('plat_1') ? 'block' : 'none'); ?>; border: 1.5px solid #b9b9bb; border-radius: 10px; padding: 16px; margin-bottom: 20px; background: #f9f9f9; max-width: 600px;">
-                <form action="<?php echo e(route('kendaraan.keluar.form')); ?>" method="GET">
-                    <label style="font-size: 12px; font-weight: 700; display: block; margin-bottom: 8px;">Nomor Plat Kendaraan:</label>
-                    <div style="display: flex; gap: 10px; align-items: center;">
-                        <input type="text" name="plat_1" placeholder="B" value="<?php echo e(request('plat_1')); ?>" style="width: 20%; padding: 8px; border: 1.5px solid #ccc; border-radius: 6px; text-align: center; text-transform: uppercase;" required>
-                        <input type="text" name="plat_2" placeholder="1234" value="<?php echo e(request('plat_2')); ?>" style="width: 35%; padding: 8px; border: 1.5px solid #ccc; border-radius: 6px; text-align: center;" required>
-                        <input type="text" name="plat_3" placeholder="KSS" value="<?php echo e(request('plat_3')); ?>" style="width: 35%; padding: 8px; border: 1.5px solid #ccc; border-radius: 6px; text-align: center; text-transform: uppercase;" required>
-                        <button type="submit" style="background: #2f327d; color: #fff; border: none; padding: 9px 16px; border-radius: 6px; font-weight: 600; cursor: pointer;">Cari</button>
-                    </div>
-                </form>
-            </div>
-
-            <!-- Kotak Hasil Pencarian / Data Kendaraan -->
-            <div style="border: 1.5px dashed #b9b9bb; border-radius: 10px; padding: 24px; text-align: center; max-width: 600px; margin-bottom: 25px; background: #fff;">
-                <?php if(isset($transaksi) && $transaksi): ?>
-                    <div style="text-align: left; font-size: 14px;">
-                        <p><strong>No. Plat:</strong> <span style="font-size: 18px; color: #2f327d;"><?php echo e($transaksi->no_plat); ?></span></p>
-                        <p><strong>Jenis Kendaraan:</strong> <?php echo e($transaksi->jenis_kendaraan ?? '-'); ?></p>
-                        <p><strong>Lokasi Parkir:</strong> <?php echo e($transaksi->lokasi_parkir ?? '-'); ?></p>
-                        <p><strong>Waktu Masuk:</strong> <?php echo e($transaksi->waktu_masuk ? $transaksi->waktu_masuk->format('d M Y - H:i') : '-'); ?> WIB</p>
-                    </div>
-                <?php else: ?>
-                    <span style="color: #6b6b6f; font-size: 13px;">Belum ada data kendaraan. Silahkan scan tiket atau cari manual di atas.</span>
-                <?php endif; ?>
-            </div>
-
-            <!-- Tombol Done / Proses Keluar -->
-            <?php if(isset($transaksi) && $transaksi): ?>
-                <form action="<?php echo e(route('kendaraan.keluar.store', $transaksi->id)); ?>" method="POST">
-                    <?php echo csrf_field(); ?>
-                    <button type="submit" style="background: linear-gradient(135deg, #8993f7, #6872e5); color: #fff; border: none; border-radius: 8px; padding: 12px 40px; font-weight: 700; font-size: 15px; cursor: pointer; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
-                        ✓ DONE
-                    </button>
-                </form>
-            <?php else: ?>
-                <button type="button" disabled style="background: #dcdcdc; color: #888; border: none; border-radius: 8px; padding: 12px 40px; font-weight: 700; font-size: 15px; cursor: not-allowed;">
-                    ✓ DONE
-                </button>
-            <?php endif; ?>
-        </main>
+    <!-- Hero Header -->
+    <div class="hero-banner" style="background-color: #3a0ca3;">
+        <div class="hero-decoration"></div>
+        <div class="small-text">Form Transaksi</div>
+        <h1>Input Kendaraan Keluar 🏎️</h1>
+        <p>Proses pembayaran dan penyelesaian durasi parkir kendaraan.</p>
     </div>
 
-    <!-- Script kecil untuk tombol Cari Manual -->
-    <script>
-        function toggleFormCari() {
-            const box = document.getElementById('formCariBox');
-            if (box.style.display === 'none') {
-                box.style.display = 'block';
-            } else {
-                box.style.display = 'none';
-            }
-        }
-    </script>
-</body>
-</html><?php /**PATH C:\laragon\www\parkir-\laravel\resources\views/keluar.blade.php ENDPATH**/ ?>
+    <!-- Alert / Notifikasi -->
+    <?php if(session()->has('success')): ?>
+        <div style="background: #dcfce7; color: #155724; padding: 15px 20px; border-radius: 12px; margin-bottom: 20px; border-left: 5px solid #16a34a; font-size: 14px;">
+            <i class="fa-solid fa-circle-check" style="margin-right: 8px;"></i> <?php echo e(session('success')); ?>
+
+        </div>
+    <?php endif; ?>
+
+    <?php if(session()->has('error')): ?>
+        <div style="background: #fee2e2; color: #dc2626; padding: 15px 20px; border-radius: 12px; margin-bottom: 20px; border-left: 5px solid #dc2626; font-size: 14px;">
+            <i class="fa-solid fa-triangle-exclamation" style="margin-right: 8px;"></i> <?php echo e(session('error')); ?>
+
+        </div>
+    <?php endif; ?>
+
+    <div class="content-grid" style="grid-template-columns: 1fr 1fr;">
+        
+        <!-- Form Kendaraan Keluar -->
+        <div class="card-white">
+            <div class="card-title">
+                <span><i class="fa-solid fa-receipt" style="color: #ea580c; margin-right: 8px;"></i> Cari & Bayar</span>
+            </div>
+            
+            <form action="<?php echo e(route('kendaraan.keluar.form')); ?>" method="POST">
+                <?php echo csrf_field(); ?>
+                <div style="margin-bottom: 20px;">
+                    <label style="display: block; font-size: 13px; font-weight: 600; color: #555; margin-bottom: 8px;">CARI NOMOR PLAT</label>
+                    <input type="text" name="no_plat" class="form-control" placeholder="Masukkan Plat Nomor" required autofocus style="width: 100%; padding: 12px 15px; border: 1.5px solid #e2e8f0; border-radius: 8px; font-size: 16px; font-weight: 600; text-transform: uppercase;">
+                </div>
+
+                <button type="submit" style="width: 100%; background: #ea580c; color: white; border: none; padding: 14px; border-radius: 8px; font-weight: 600; cursor: pointer; font-size: 15px;">
+                    <i class="fa-solid fa-calculator" style="margin-right: 8px;"></i> HITUNG TARIF & KELUAR
+                </button>
+            </form>
+        </div>
+
+        <!-- Info Transaksi Aktif -->
+        <div class="card-white">
+            <div class="card-title">Ringkasan Sesi Parkir</div>
+            <div style="display: flex; flex-direction: column; gap: 15px;">
+                <div>
+                    <div style="font-size: 12px; color: #888;">Total Kendaraan Sedang Parkir</div>
+                    <div style="font-size: 28px; font-weight: 700; color: #3a0ca3;"><?php echo e($kendaraanParkir ?? 0); ?></div>
+                </div>
+                <hr style="border: none; border-top: 1px solid #eee;">
+                <div>
+                    <div style="font-size: 12px; color: #888;">Keluar Terakhir</div>
+                    <div style="font-size: 15px; font-weight: 600; color: #333;"><?php echo e($waktuKeluarTerakhir ?? '-'); ?></div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+<?php $__env->stopSection(); ?>
+<?php echo $__env->make('layouts.main', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?><?php /**PATH C:\laragon\www\parkir-\laravel\resources\views/keluar.blade.php ENDPATH**/ ?>
